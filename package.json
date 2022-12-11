@@ -3,5 +3,8 @@
     "@middy/core": "^4.0.5",
     "@middy/http-json-body-parser": "^4.0.4",
     "aws-sdk": "^2.1272.0"
+  },
+  "devDependencies": {
+    "serverless": "^3.25.1"
   }
 }
