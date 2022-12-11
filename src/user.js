@@ -1,12 +1,12 @@
 const AWS = require("aws-sdk");
-const middy = require("@middy/core");
-const jsonBodyParser = require("@middy/http-json-body-parser");
+// const middy = require("@middy/core");
+// const jsonBodyParser = require("@middy/http-json-body-parser");
 
 const createUser = async (event) => {
   try {
     const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-    const { number, name } = event.body;
+    const { number, name } = JSON.parse(event.body);
     const createdAt = new Date().toISOString();
     const balance = 0;
 
@@ -70,7 +70,7 @@ const updateBalance = async (event) => {
   try {
     const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-    const { balance } = event.body;
+    const { balance } = JSON.parse(event.body);
 
     await dynamoDb.update({
       TableName: "UserTable",
@@ -100,7 +100,7 @@ const updateBalance = async (event) => {
 };
 
 module.exports = {
-  createUser: middy(createUser).use(jsonBodyParser()),
-  getUser: middy(getUser).use(jsonBodyParser()),
-  updateBalance: middy(updateBalance).use(jsonBodyParser()),
+  createUser,
+  getUser,
+  updateBalance,
 };
