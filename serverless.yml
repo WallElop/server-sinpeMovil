@@ -4,11 +4,61 @@ frameworkVersion: '3'
 provider:
   name: aws
   runtime: nodejs14.x
-
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action: 
+        - dynamodb:*
+      Resource: 
+        - arn:aws:dynamodb:us-east-1:246835515915:table/UserTable
+        - arn:aws:dynamodb:us-east-1:246835515915:table/MovementTable
+        
 functions:
-  hello:
-    handler: handler.hello
+  createUser:
+    handler: src/user.createUser
     events:
       - httpApi:
-          path: /
+          path: /user
+          method: post
+  getUser:
+    handler: src/user.getUser
+    events:
+      - httpApi:
+          path: /user/{number}
           method: get
+  updateBalance:
+    handler: src/user.updateBalance
+    events:
+      - httpApi:
+          path: /user/{number}
+          method: put
+
+resources:
+  Resources:
+    UserTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: UserTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: number
+            AttributeType: S
+        KeySchema:
+          - AttributeName: number
+            KeyType: HASH
+    MovementTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: MovementTable
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: senderNumber
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
+        KeySchema:
+          - AttributeName: senderNumber
+            KeyType: HASH
+          - AttributeName: createdAt
+            KeyType: RANGE
+        
