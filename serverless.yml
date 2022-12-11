@@ -32,6 +32,12 @@ functions:
       - httpApi:
           path: /user/{number}
           method: put
+  createMovement:
+    handler: src/movement.createMovement
+    events:
+      - httpApi:
+          path: /movement
+          method: post
 
 resources:
   Resources:
