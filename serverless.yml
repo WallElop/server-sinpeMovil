@@ -1,5 +1,5 @@
 service: server-sinpeMovil
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 provider:
   name: aws
@@ -7,12 +7,12 @@ provider:
   region: us-east-1
   iamRoleStatements:
     - Effect: Allow
-      Action: 
+      Action:
         - dynamodb:*
-      Resource: 
+      Resource:
         - arn:aws:dynamodb:us-east-1:246835515915:table/UserTable
         - arn:aws:dynamodb:us-east-1:246835515915:table/MovementTable
-        
+
 functions:
   createUser:
     handler: src/user.createUser
@@ -38,6 +38,18 @@ functions:
       - httpApi:
           path: /movement
           method: post
+  getMovement:
+    handler: src/movement.getMovement
+    events:
+      - httpApi:
+          path: /movement/{number}
+          method: get
+  getMovements:
+    handler: src/movement.getMovements
+    events:
+      - httpApi:
+          path: /movements/{number}
+          method: get
 
 resources:
   Resources:
@@ -67,4 +79,3 @@ resources:
             KeyType: HASH
           - AttributeName: createdAt
             KeyType: RANGE
-        
