@@ -1,6 +1,4 @@
 const AWS = require("aws-sdk");
-// const middy = require("@middy/core");
-// const jsonBodyParser = require("@middy/http-json-body-parser");
 
 const createUser = async (event) => {
   try {
@@ -55,7 +53,6 @@ const getUser = async (event) => {
       statusCode: 200,
       body: JSON.stringify(user.Item),
     };
-
   } catch (error) {
     return {
       statusCode: 404,
@@ -72,23 +69,24 @@ const updateBalance = async (event) => {
 
     const { balance } = JSON.parse(event.body);
 
-    await dynamoDb.update({
-      TableName: "UserTable",
-      Key: {
-        number: event.pathParameters.number,
-      },
-      UpdateExpression: "SET balance = :balance",
-      ExpressionAttributeValues: {
-        ":balance": balance,
-      },
-      ReturnValues: 'ALL_NEW'
-    }).promise();
+    const updatedUser = await dynamoDb
+      .update({
+        TableName: "UserTable",
+        Key: {
+          number: event.pathParameters.number,
+        },
+        UpdateExpression: "SET balance = balance - :balance",
+        ExpressionAttributeValues: {
+          ":balance": balance,
+        },
+        ReturnValues: "ALL_NEW",
+      })
+      .promise();
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ "message": "Balance updated" }),
+      body: JSON.stringify({ user: updatedUser.Attributes }),
     };
-
   } catch (error) {
     return {
       statusCode: 404,
