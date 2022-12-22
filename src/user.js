@@ -1,14 +1,14 @@
 const AWS = require("aws-sdk");
-const middy = require("@middy/core");
-const jsonBodyParser = require("@middy/http-json-body-parser");
 
+// Create user function
 const createUser = async (event) => {
   try {
     const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-    const { number, name } = event.body;
-    const createdAt = new Date().toISOString();
-    const balance = 0;
+    // Get data from request
+    const { number, name } = JSON.parse(event.body);
+    const createdAt = new Date().toISOString(); // Current date
+    const balance = 0; // Initial balance 
 
     const newUser = {
       number,
@@ -38,6 +38,7 @@ const createUser = async (event) => {
   }
 };
 
+// Get user function
 const getUser = async (event) => {
   try {
     const dynamoDb = new AWS.DynamoDB.DocumentClient();
@@ -46,7 +47,7 @@ const getUser = async (event) => {
       .get({
         TableName: "UserTable",
         Key: {
-          number: event.pathParameters.number,
+          number: event.pathParameters.number, // Get number from request
         },
       })
       .promise();
@@ -55,7 +56,6 @@ const getUser = async (event) => {
       statusCode: 200,
       body: JSON.stringify(user.Item),
     };
-
   } catch (error) {
     return {
       statusCode: 404,
@@ -66,29 +66,32 @@ const getUser = async (event) => {
   }
 };
 
+// Update balance function
 const updateBalance = async (event) => {
   try {
     const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-    const { balance } = event.body;
+    const { balance } = JSON.parse(event.body);
 
-    await dynamoDb.update({
-      TableName: "UserTable",
-      Key: {
-        number: event.pathParameters.number,
-      },
-      UpdateExpression: "SET balance = :balance",
-      ExpressionAttributeValues: {
-        ":balance": balance,
-      },
-      ReturnValues: 'ALL_NEW'
-    }).promise();
+    // Update balance in user table
+    const updatedUser = await dynamoDb
+      .update({
+        TableName: "UserTable",
+        Key: {
+          number: event.pathParameters.number,
+        },
+        UpdateExpression: "SET balance = balance - :balance", // Update balance to balance - amount
+        ExpressionAttributeValues: {
+          ":balance": balance,
+        },
+        ReturnValues: "ALL_NEW",
+      })
+      .promise();
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ "message": "Balance updated" }),
+      body: JSON.stringify({ user: updatedUser.Attributes }),
     };
-
   } catch (error) {
     return {
       statusCode: 404,
@@ -100,7 +103,7 @@ const updateBalance = async (event) => {
 };
 
 module.exports = {
-  createUser: middy(createUser).use(jsonBodyParser()),
-  getUser: middy(getUser).use(jsonBodyParser()),
-  updateBalance: middy(updateBalance).use(jsonBodyParser()),
+  createUser,
+  getUser,
+  updateBalance,
 };
