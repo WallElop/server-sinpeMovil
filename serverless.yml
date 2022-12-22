@@ -42,13 +42,13 @@ functions:
     handler: src/movement.getMovement
     events:
       - httpApi:
-          path: /movement/{number}
+          path: /movement/{number}/{createdAt}
           method: get
   getMovements:
     handler: src/movement.getMovements
     events:
       - httpApi:
-          path: /movements/{number}
+          path: /movements/{number}/{createdAt}
           method: get
 
 resources:
