@@ -1,9 +1,11 @@
 const AWS = require("aws-sdk");
 
+// Create movement function
 const createMovement = async (event) => {
   try {
     const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
+    // Get data from request
     const { senderNumber, amount, receiverNumber, detail, name } = JSON.parse(
       event.body
     );
@@ -39,19 +41,21 @@ const createMovement = async (event) => {
   }
 };
 
+// Get movement function
 const getMovement = async (event) => {
   try {
     const dynamoDb = new AWS.DynamoDB.DocumentClient();
+    // Get parameters from request
     const { number, createdAt } = event.pathParameters;
 
     const params = {
       TableName: "MovementTable",
-      ExpressionAttributeValues: {
+      ExpressionAttributeValues: { 
         ":senderNumber": number,
         ":createdAt": createdAt,
       },
       KeyConditionExpression:
-        "senderNumber = :senderNumber AND createdAt = :createdAt",
+        "senderNumber = :senderNumber AND createdAt = :createdAt", // Partition key and sort key
     };
 
     const result = await dynamoDb.query(params).promise();
@@ -70,6 +74,7 @@ const getMovement = async (event) => {
   }
 };
 
+// Get movements function
 const getMovements = async (event) => {
   try {
     const dynamoDb = new AWS.DynamoDB.DocumentClient();
@@ -92,6 +97,9 @@ const getMovements = async (event) => {
     };
 
     const movements = await dynamoDb.query(params).promise();
+
+    // Get all movements related to a number. Ins and outs
+    // Not implemented.
 
     // const params = {
     //   TableName: "MovementTable",

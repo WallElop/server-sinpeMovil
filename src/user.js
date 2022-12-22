@@ -1,12 +1,14 @@
 const AWS = require("aws-sdk");
 
+// Create user function
 const createUser = async (event) => {
   try {
     const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
+    // Get data from request
     const { number, name } = JSON.parse(event.body);
-    const createdAt = new Date().toISOString();
-    const balance = 0;
+    const createdAt = new Date().toISOString(); // Current date
+    const balance = 0; // Initial balance 
 
     const newUser = {
       number,
@@ -36,6 +38,7 @@ const createUser = async (event) => {
   }
 };
 
+// Get user function
 const getUser = async (event) => {
   try {
     const dynamoDb = new AWS.DynamoDB.DocumentClient();
@@ -44,7 +47,7 @@ const getUser = async (event) => {
       .get({
         TableName: "UserTable",
         Key: {
-          number: event.pathParameters.number,
+          number: event.pathParameters.number, // Get number from request
         },
       })
       .promise();
@@ -63,19 +66,21 @@ const getUser = async (event) => {
   }
 };
 
+// Update balance function
 const updateBalance = async (event) => {
   try {
     const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
     const { balance } = JSON.parse(event.body);
 
+    // Update balance in user table
     const updatedUser = await dynamoDb
       .update({
         TableName: "UserTable",
         Key: {
           number: event.pathParameters.number,
         },
-        UpdateExpression: "SET balance = balance - :balance",
+        UpdateExpression: "SET balance = balance - :balance", // Update balance to balance - amount
         ExpressionAttributeValues: {
           ":balance": balance,
         },
